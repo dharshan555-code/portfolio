@@ -21,33 +21,7 @@ Tailwind CSS
 Lucide React
 GitHub Actions
 GitHub Pages
-💻 Run Locally
-Clone the repository:
-```bash
-git clone https://github.com/dharshan555-code/dharshan-portfolio.git
-cd dharshan-portfolio
-```
-Install dependencies:
-```bash
-npm install
-```
-Start the development server:
-```bash
-npm run dev
-```
-Open the local URL shown in the terminal, usually:
-```text
-http://localhost:5173
-```
-🚀 Build
-Create a production build:
-```bash
-npm run build
-```
-Preview the production build:
-```bash
-npm run preview
-```
+
 📁 Project Structure
 ```text
 dharshan-portfolio/
