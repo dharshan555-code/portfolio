@@ -77,6 +77,14 @@ const socials = [
 
 function Navbar() {
   const [open, setOpen] = useState(false);
+  const [dark, setDark] = useState(() => {
+  return localStorage.getItem("theme") === "dark";
+});
+
+useEffect(() => {
+  document.documentElement.classList.toggle("dark", dark);
+  localStorage.setItem("theme", dark ? "dark" : "light");
+}, [dark]);
   const links = [
     ["Work", "#work"],
     ["About", "#about"],
