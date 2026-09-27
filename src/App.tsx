@@ -89,7 +89,7 @@ function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 px-3 md:px-6">
       <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
         <a href="#top" className="text-base font-semibold tracking-tight">
-          Dharshan P
+          Dharshan 
         </a>
 
         <div className="hidden items-center gap-7 md:flex">
