@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "New York", "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+  color: #000;
+  background: #fff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #fff;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #000;
+  color: #fff;
+}
+
+button,
+a,
+input,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+/* Keep the profile portrait in its original natural color. */
+.profile-photo {
+  filter: grayscale(0) saturate(1.06) contrast(1.02) !important;
+  -webkit-filter: grayscale(0) saturate(1.06) contrast(1.02) !important;
+}
+
+@media (max-width: 767px) {
+  .profile-photo {
+    max-height: 560px;
+  }
+}
