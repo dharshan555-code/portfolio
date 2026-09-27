@@ -178,7 +178,7 @@ function Hero() {
           <div className="mx-auto w-full max-w-[340px] md:ml-auto">
             <div className="overflow-hidden rounded-[2rem] bg-black">
               <img
-                src="/profile-color.jpeg"
+                src="/portfolio/profile-color.jpeg"
                 alt="Dharshan P"
                 className="profile-photo aspect-[4/5] w-full object-cover saturate-[1.08] contrast-[1.02]"
               />
