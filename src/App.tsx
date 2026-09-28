@@ -102,11 +102,17 @@ useEffect(() => {
           Dharshan 
         </a>
 <button
-  onClick={() => setDark(!dark)}
-  aria-label="Toggle dark mode"
-  className="fixed top-5 right-5 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/80 text-black shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 dark:border-white/10 dark:bg-[#151515]/80 dark:text-white"
+  type="button"
+  onClick={() => setDark((value) => !value)}
+  aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+  title={dark ? "Light mode" : "Dark mode"}
+  className="fixed right-6 top-6 z-[9999] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-white/15 dark:bg-[#151515]/90 dark:text-white"
 >
-  {dark ? <Sun size={18} strokeWidth={1.8} /> : <Moon size={18} strokeWidth={1.8} />}
+  {dark ? (
+    <Sun size={17} strokeWidth={1.7} />
+  ) : (
+    <Moon size={17} strokeWidth={1.7} />
+  )}
 </button>
         <div className="hidden items-center gap-7 md:flex">
           {links.map(([label, href]) => (
