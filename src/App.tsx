@@ -9,6 +9,8 @@ import {
   Menu,
   X,
   ExternalLink,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 const useReveal = () => {
