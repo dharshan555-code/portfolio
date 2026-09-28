@@ -9,8 +9,6 @@ import {
   Menu,
   X,
   ExternalLink,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 const useReveal = () => {
@@ -79,14 +77,6 @@ const socials = [
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-  return localStorage.getItem("theme") === "dark";
-});
-
-useEffect(() => {
-  document.documentElement.classList.toggle("dark", dark);
-  localStorage.setItem("theme", dark ? "dark" : "light");
-}, [dark]);
   const links = [
     ["Work", "#work"],
     ["About", "#about"],
@@ -97,23 +87,10 @@ useEffect(() => {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 md:px-6">
-      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 dark:bg-[#151515]/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
+      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
         <a href="#top" className="text-base font-semibold tracking-tight">
           Dharshan 
         </a>
-<button
-  type="button"
-  onClick={() => setDark((value) => !value)}
-  aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-  title={dark ? "Light mode" : "Dark mode"}
-  className="fixed right-6 top-6 z-[9999] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-white/15 dark:bg-[#151515]/90 dark:text-white"
->
-  {dark ? (
-    <Sun size={17} strokeWidth={1.7} />
-  ) : (
-    <Moon size={17} strokeWidth={1.7} />
-  )}
-</button>
         <div className="hidden items-center gap-7 md:flex">
           {links.map(([label, href]) => (
             <a
@@ -577,7 +554,7 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black dark:bg-[#0a0a0a] dark:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black">
       <Navbar />
       <main>
         <Hero />
