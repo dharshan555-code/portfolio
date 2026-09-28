@@ -95,7 +95,7 @@ useEffect(() => {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 md:px-6">
-      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
+      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 dark:bg-[#151515]/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
         <a href="#top" className="text-base font-semibold tracking-tight">
           Dharshan 
         </a>
@@ -568,7 +568,7 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black selection:bg-black selection:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black dark:bg-[#0a0a0a] dark:text-white">
       <Navbar />
       <main>
         <Hero />
