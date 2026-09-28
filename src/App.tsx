@@ -101,7 +101,7 @@ useEffect(() => {
         </a>
 <button
   onClick={() => setDark(!dark)}
-  className="rounded-full border border-black/10 px-3 py-2"
+  className="fixed top-5 right-5 z-[100] rounded-full border border-black/10 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-[#151515]/90"
 >
   {dark ? "☀️" : "🌙"}
 </button>
