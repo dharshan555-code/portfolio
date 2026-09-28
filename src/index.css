@@ -69,3 +69,42 @@ a {
     max-height: 560px;
   }
 }
+html.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: #0a0a0a;
+  color: #f5f2ea;
+}
+
+.dark [class*="bg-white"] {
+  background-color: #121212 !important;
+}
+
+.dark [class*="bg-[#fafafa]"],
+.dark [class*="bg-[#f7f7f7]"],
+.dark [class*="bg-[#f3f3f3]"] {
+  background-color: #111111 !important;
+}
+
+.dark [class*="text-black"] {
+  color: #f5f2ea !important;
+}
+
+.dark [class*="border-black"] {
+  border-color: rgba(255,255,255,0.14) !important;
+}
+
+body,
+nav,
+section,
+article,
+button,
+a {
+  transition:
+    background-color 450ms ease,
+    color 450ms ease,
+    border-color 450ms ease,
+    transform 450ms ease;
+}
