@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState , Moon, Sun } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -101,9 +101,10 @@ useEffect(() => {
         </a>
 <button
   onClick={() => setDark(!dark)}
-  className="fixed top-5 right-5 z-[100] rounded-full border border-black/10 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-[#151515]/90"
+  aria-label="Toggle dark mode"
+  className="fixed top-6 right-6 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/80 text-black shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:shadow-md dark:border-white/10 dark:bg-[#151515]/80 dark:text-white"
 >
-  {dark ? "☀️" : "🌙"}
+  {dark ? <Sun size={18} strokeWidth={1.8} /> : <Moon size={18} strokeWidth={1.8} />}
 </button>
         <div className="hidden items-center gap-7 md:flex">
           {links.map(([label, href]) => (
