@@ -99,7 +99,12 @@ useEffect(() => {
         <a href="#top" className="text-base font-semibold tracking-tight">
           Dharshan 
         </a>
-
+<button
+  onClick={() => setDark(!dark)}
+  className="rounded-full border border-black/10 px-3 py-2"
+>
+  {dark ? "☀️" : "🌙"}
+</button>
         <div className="hidden items-center gap-7 md:flex">
           {links.map(([label, href]) => (
             <a
