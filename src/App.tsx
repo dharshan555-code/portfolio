@@ -174,25 +174,18 @@ function Hero() {
         </Reveal>
 
         <Reveal className="md:justify-self-end">
-          <div className="masterpiece-scene" aria-label="3D illustrated masterpiece artwork">
-            <div className="scene-glow" />
-            <div className="orbital-ring ring-one" />
-            <div className="orbital-ring ring-two" />
-            <div className="orbital-ring ring-three" />
-            <div className="core-structure">
-              <div className="core-shell" />
-              <div className="core-center" />
+          <div className="mx-auto w-full max-w-[340px] md:ml-auto">
+            <div className="overflow-hidden rounded-[2rem] bg-black">
+              <img
+                src="/portfolio/profile-color.jpeg"
+                alt="Dharshan P"
+                className="profile-photo aspect-[4/5] w-full object-cover saturate-[1.08] contrast-[1.02]"
+              />
             </div>
-            <div className="floating-cube cube-one" />
-            <div className="floating-cube cube-two" />
-            <div className="floating-cube cube-three" />
-            <div className="floating-dot dot-one" />
-            <div className="floating-dot dot-two" />
-            <div className="floating-dot dot-three" />
-          </div>
-          <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.2em] text-black/40">
-            <span>Creative</span>
-            <span>3D motion</span>
+            <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.2em] text-black/40">
+              <span>Developer</span>
+              <span>Madurai, India</span>
+            </div>
           </div>
         </Reveal>
       </div>
@@ -561,7 +554,7 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black selection:bg-black selection:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black">
       <Navbar />
       <main>
         <Hero />
