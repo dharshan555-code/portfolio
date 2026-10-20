@@ -1,599 +1,571 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Github,
+  Instagram,
+  Linkedin,
+  Mail,
+  Menu,
+  X,
+  ExternalLink,
+} from "lucide-react";
 
-// 3D Interactive Wireframe & Particle Background Component
-const Interactive3DBackground: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+const useReveal = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const node = ref.current;
+    if (!node) return;
 
-    let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Mouse tracking
-    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.targetX = (e.clientX - width / 2) * 0.002;
-      mouse.targetY = (e.clientY - height / 2) * 0.002;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-
-    // 3D Icosahedron / Octahedron vertices
-    const t = (1 + Math.sqrt(5)) / 2;
-    const rawVertices = [
-      [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
-      [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-      [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]
-    ];
-    const scale = 130;
-    const vertices = rawVertices.map(([x, y, z]) => ({
-      x: x * scale,
-      y: y * scale,
-      z: z * scale,
-    }));
-
-    // Edges connecting close vertices
-    const edges: [number, number][] = [];
-    for (let i = 0; i < vertices.length; i++) {
-      for (let j = i + 1; j < vertices.length; j++) {
-        const dx = vertices[i].x - vertices[j].x;
-        const dy = vertices[i].y - vertices[j].y;
-        const dz = vertices[i].z - vertices[j].z;
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < scale * 2.1) {
-          edges.push([i, j]);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(node);
         }
-      }
-    }
+      },
+      { threshold: 0.12 }
+    );
 
-    // Floating 3D particles
-    const particles = Array.from({ length: 70 }, () => ({
-      x: (Math.random() - 0.5) * width * 1.5,
-      y: (Math.random() - 0.5) * height * 1.5,
-      z: Math.random() * 600 + 100,
-      size: Math.random() * 1.8 + 0.5,
-    }));
-
-    let angleX = 0;
-    let angleY = 0;
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      mouse.x += (mouse.targetX - mouse.x) * 0.06;
-      mouse.y += (mouse.targetY - mouse.y) * 0.06;
-
-      angleX += 0.003 + mouse.y * 0.08;
-      angleY += 0.004 + mouse.x * 0.08;
-
-      const cx = width > 768 ? width * 0.72 : width * 0.5;
-      const cy = height * 0.42;
-      const fov = 500;
-
-      // Render Particles
-      particles.forEach((p) => {
-        p.z -= 0.6;
-        if (p.z <= 10) p.z = 700;
-        const perspective = fov / (fov + p.z);
-        const px = width / 2 + (p.x - mouse.x * 120) * perspective;
-        const py = height / 2 + (p.y - mouse.y * 120) * perspective;
-
-        ctx.beginPath();
-        ctx.arc(px, py, p.size * perspective, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(56, 189, 248, ${0.15 + perspective * 0.35})`;
-        ctx.fill();
-      });
-
-      // Rotate and Project 3D Core Vertices
-      const projected = vertices.map((v) => {
-        // Rotate Y
-        const x1 = v.x * Math.cos(angleY) - v.z * Math.sin(angleY);
-        const z1 = v.z * Math.cos(angleY) + v.x * Math.sin(angleY);
-        // Rotate X
-        const y2 = v.y * Math.cos(angleX) - z1 * Math.sin(angleX);
-        const z2 = z1 * Math.cos(angleX) + v.y * Math.sin(angleX);
-
-        const perspective = fov / (fov + z2 + 250);
-        return {
-          x: cx + x1 * perspective,
-          y: cy + y2 * perspective,
-          z: z2,
-          p: perspective,
-        };
-      });
-
-      // Draw Edges
-      edges.forEach(([i, j]) => {
-        const p1 = projected[i];
-        const p2 = projected[j];
-        const alpha = Math.max(0.06, ((p1.p + p2.p) / 2 - 0.4) * 0.45);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = `rgba(34, 211, 238, ${alpha})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      });
-
-      // Draw Nodes
-      projected.forEach((p) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.5 * p.p, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.75)';
-        ctx.fill();
-      });
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
+    observer.observe(node);
+    return () => observer.disconnect();
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-75"
-    />
-  );
+  return { ref, visible };
 };
 
-// 3D Tilt Wrapper Component
-const TiltCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
+function Reveal({
   children,
-  className = '',
-}) => {
-  const cardRef = useRef<HTMLDivElement | null>(null);
-  const [transform, setTransform] = useState(
-    'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
-  );
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -7;
-    const rotateY = ((x - centerX) / centerX) * 7;
-
-    setTransform(
-      `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(
-        2
-      )}deg) scale3d(1.015, 1.015, 1.015)`
-    );
-  };
-
-  const handleMouseLeave = () => {
-    setTransform(
-      'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
-    );
-  };
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const { ref, visible } = useReveal();
 
   return (
     <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transform,
-        transition: 'transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
-        transformStyle: 'preserve-3d',
-      }}
-      className={className}
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      } ${className}`}
     >
       {children}
     </div>
   );
-};
+}
 
-export function App() {
-  const [terminalInput, setTerminalInput] = useState('');
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    'JARVIS OS v2.6 initialized...',
-    'Type "help" to explore available commands.',
-  ]);
+const socials = [
+  {
+    label: "Instagram",
+    href: "https://instagram.com/dharshanprabath",
+    icon: Instagram,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/dharshan-p-ba4734370/",
+    icon: Linkedin,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/dharshan555-code",
+    icon: Github,
+  },
+];
 
-  const handleCommand = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cmd = terminalInput.trim().toLowerCase();
-    if (!cmd) return;
-
-    let reply = '';
-    switch (cmd) {
-      case 'help':
-        reply = 'Available commands: whoami, skills, projects, nexantix, contact, clear';
-        break;
-      case 'whoami':
-        reply =
-          'Dharshan — B.E. CSE Undergraduate @ PTR College of Engineering & Technology, Madurai. AI Systems & Full-Stack Builder.';
-        break;
-      case 'skills':
-        reply =
-          'Core: Python, C++, Java, TypeScript, React, Tailwind CSS | AI: Ollama, LangChain, LangGraph, MCP.';
-        break;
-      case 'projects':
-        reply =
-          '1. JARVIS Local AI Controller | 2. HabitIO (AMOLED App) | 3. Self-Correcting LangGraph Agents | 4. Nexantix Web Suite';
-        break;
-      case 'nexantix':
-        reply =
-          'Nexantix — Next-gen software & AI automation brand founded by Dharshan.';
-        break;
-      case 'contact':
-        reply = 'GitHub: github.com/dharshan555-code | Location: Madurai, TN, India';
-        break;
-      case 'clear':
-        setTerminalLogs([]);
-        setTerminalInput('');
-        return;
-      default:
-        reply = `Command not recognized: "${cmd}". Type "help" for a list of commands.`;
-    }
-
-    setTerminalLogs((prev) => [...prev, `> ${terminalInput}`, reply]);
-    setTerminalInput('');
-  };
-
-  const projects = [
-    {
-      title: 'JARVIS — Local AI System Controller',
-      tag: 'AI / Automation',
-      description:
-        'Offline voice assistant and system automation engine powered by local LLMs via Ollama and Llama architectures with speech-to-text integration.',
-      tech: ['Python', 'Ollama', 'Llama', 'System Automation'],
-      link: 'https://github.com/dharshan555-code',
-    },
-    {
-      title: 'HabitIO — AMOLED Habit Tracker',
-      tag: 'Mobile & UI/UX',
-      description:
-        'Minimalist, distraction-free habit tracking application crafted with a true-black AMOLED interface and streak analytics.',
-      tech: ['React', 'TypeScript', 'Tailwind CSS', 'AMOLED UI'],
-      link: 'https://github.com/dharshan555-code',
-    },
-    {
-      title: 'Self-Correcting Agent Architecture',
-      tag: 'Agentic AI',
-      description:
-        'Autonomous multi-step AI workflow utilizing LangGraph and Model Context Protocol (MCP) for dynamic tool execution and self-reflection.',
-      tech: ['Python', 'LangGraph', 'LangChain', 'MCP'],
-      link: 'https://github.com/dharshan555-code',
-    },
-    {
-      title: 'Nexantix — Digital Brand & Web Platform',
-      tag: 'Founder Project',
-      description:
-        'Modern web architecture, minimalist design system, and automated GitHub Pages deployment pipeline for the Nexantix software brand.',
-      tech: ['HTML5', 'Tailwind CSS', 'JavaScript', 'GitHub Actions'],
-      link: 'https://github.com/dharshan555-code',
-    },
+function Navbar() {
+  const [open, setOpen] = useState(false);
+  const links = [
+    ["Work", "#work"],
+    ["About", "#about"],
+    ["Stack", "#stack"],
+    ["Journey", "#journey"],
+    ["Contact", "#contact"],
   ];
 
-  const skillGroups = [
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 px-3 md:px-6">
+      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
+        <a href="#top" className="text-base font-semibold tracking-tight">
+          Dharshan 
+        </a>
+        <div className="hidden items-center gap-7 md:flex">
+          {links.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className="text-sm text-black/55 transition-colors hover:text-black"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+
+        <button
+          aria-label="Toggle menu"
+          onClick={() => setOpen((v) => !v)}
+          className="rounded-full p-2 md:hidden"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </nav>
+
+      {open && (
+        <div className="mx-4 mt-2 rounded-3xl border border-black/5 bg-white p-5 shadow-xl md:hidden">
+          <div className="flex flex-col gap-1">
+            {links.map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className="rounded-2xl px-4 py-3 text-lg transition-colors hover:bg-black/[0.04]"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section id="top" className="mx-auto flex min-h-screen w-full max-w-7xl items-center overflow-hidden px-6 pb-20 pt-32 md:px-12">
+      <div className="grid w-full items-center gap-12 md:grid-cols-[1.12fr_.88fr] md:gap-10 lg:gap-16">
+        <Reveal>
+          <div className="max-w-4xl">
+            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.28em] text-black/45">
+              Dharshan P · Developer
+            </p>
+
+            <h1 className="max-w-4xl text-[clamp(3.3rem,8vw,7.8rem)] font-semibold leading-[0.92] tracking-[-0.055em]">
+              I build digital products that feel simple.
+            </h1>
+
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-black/55 md:text-xl">
+              Developer focused on software, AI, web experiences and digital
+              products — turning ideas into useful things.
+            </p>
+
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <a
+                href="#work"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-black px-7 py-3.5 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
+              >
+                View work <ArrowUpRight size={16} />
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-black/15 px-7 py-3.5 text-sm font-medium transition-colors hover:bg-black/[0.04]"
+              >
+                Let's talk <ArrowDownRight size={16} />
+              </a>
+            </div>
+
+            <div className="mt-10 flex items-center gap-3 text-sm text-black/50">
+              <span className="h-2 w-2 rounded-full bg-black" />
+              Available for selected projects
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal className="md:justify-self-end">
+          <div className="mx-auto w-full max-w-[340px] md:ml-auto">
+            <div className="overflow-hidden rounded-[2rem] bg-black">
+              <img
+                src="/portfolio/profile-color.jpeg"
+                alt="Dharshan P"
+                className="profile-photo aspect-[4/5] w-full object-cover saturate-[1.08] contrast-[1.02]"
+              />
+            </div>
+            <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.2em] text-black/40">
+              <span>Developer</span>
+              <span>Madurai, India</span>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section id="about" className="px-6 py-24 md:px-12 md:py-32">
+      <div className="mx-auto max-w-7xl rounded-[2rem] bg-[#f7f7f7] p-8 md:p-14">
+        <div className="grid gap-12 lg:grid-cols-[.6fr_1.4fr]">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
+              About
+            </p>
+            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+              A little about me.
+            </h2>
+          </Reveal>
+
+          <Reveal className="space-y-6">
+            <p className="text-xl leading-9 text-black/65 md:text-2xl">
+              I'm Dharshan, a developer interested in software, AI, product
+              design and building useful digital experiences from the ground up.
+            </p>
+            <p className="text-lg leading-8 text-black/50">
+              I like simple interfaces, clean code and ambitious ideas that can
+              become real products.
+            </p>
+
+            <div className="grid gap-6 border-t border-black/10 pt-8 sm:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/35">Currently</p>
+                <p className="mt-2 font-medium">B.E. Computer Science</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/35">Focus</p>
+                <p className="mt-2 font-medium">Software · AI · Web · Products</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/35">Location</p>
+                <p className="mt-2 font-medium">Madurai, Tamil Nadu, India</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/35">Interests</p>
+                <p className="mt-2 font-medium">Technology · Design · Building</p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatIBuild() {
+  const items = [
+    ["01", "Websites", "Modern responsive websites and digital experiences."],
+    ["02", "Web Applications", "Useful applications, dashboards and tools."],
+    ["03", "AI Products", "AI assistants, automation and intelligent software."],
+    ["04", "Product Development", "Turning ideas into functional digital products."],
+  ];
+
+  return (
+    <section className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-32">
+      <Reveal>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
+          Capabilities
+        </p>
+        <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+          What I build.
+        </h2>
+      </Reveal>
+
+      <div className="mt-14 divide-y divide-black/10 border-y border-black/10">
+        {items.map(([num, title, description]) => (
+          <Reveal key={num}>
+            <div className="grid gap-4 py-8 md:grid-cols-[80px_1fr_1fr] md:items-center">
+              <span className="text-sm text-black/35">{num}</span>
+              <h3 className="text-2xl font-semibold tracking-tight">{title}</h3>
+              <p className="max-w-md text-black/50">{description}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Work() {
+  const projects = [
     {
-      category: 'Languages & Core',
-      items: ['Python', 'C++', 'Java', 'JavaScript', 'TypeScript', 'DSA'],
+      number: "01",
+      name: "HabitIQ",
+      type: "Product · Productivity",
+      description: "A minimalist habit and productivity experience.",
+      tech: "React · Tailwind · Capacitor",
     },
     {
-      category: 'AI & Agentic Frameworks',
-      items: ['Ollama', 'Llama Models', 'LangChain', 'LangGraph', 'MCP', 'Voice AI'],
+      number: "02",
+      name: "JARVIS",
+      type: "AI · Automation",
+      description:
+        "An AI assistant exploring computer control, automation, agents and intelligent workflows.",
+      tech: "Python · AI · Automation",
     },
     {
-      category: 'Web & UI Engineering',
-      items: ['React', 'Tailwind CSS', 'HTML5 / CSS3', 'Vite', 'Minimalist UI/UX', 'Figma'],
+      number: "03",
+      name: "Py-Sec-Lint",
+      type: "Developer Tool · Security",
+      description:
+        "A security-focused concept for auditing Python dependencies.",
+      tech: "Python · Security · AI",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
-      {/* 3D Interactive Canvas Background */}
-      <Interactive3DBackground />
+    <section id="work" className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-32">
+      <Reveal>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
+          Portfolio
+        </p>
+        <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+          Selected work.
+        </h2>
+      </Reveal>
 
-      {/* Subtle Ambient Glow */}
-      <div className="fixed top-[-15%] left-[-10%] w-[420px] h-[420px] rounded-full bg-cyan-500/10 blur-[130px] pointer-events-none" />
-      <div className="fixed bottom-[-15%] right-[-10%] w-[420px] h-[420px] rounded-full bg-emerald-500/10 blur-[130px] pointer-events-none" />
-
-      {/* Minimalist Floating Navbar */}
-      <header className="sticky top-4 z-50 mx-auto max-w-5xl px-4">
-        <nav className="flex items-center justify-between px-6 py-3 rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-zinc-800/80 shadow-2xl">
-          <a
-            href="#top"
-            className="text-sm font-bold tracking-widest uppercase text-white flex items-center gap-2"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            DHARSHAN<span className="text-cyan-400">.DEV</span>
-          </a>
-          <div className="hidden sm:flex items-center gap-6 text-xs uppercase tracking-wider text-zinc-400">
-            <a href="#about" className="hover:text-white transition-colors">
-              About
-            </a>
-            <a href="#projects" className="hover:text-white transition-colors">
-              Projects
-            </a>
-            <a href="#terminal" className="hover:text-white transition-colors">
-              JARVIS CLI
-            </a>
-            <a href="#contact" className="hover:text-white transition-colors">
-              Contact
-            </a>
-          </div>
-          <a
-            href="https://github.com/dharshan555-code"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-medium px-3.5 py-1.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-cyan-400 transition-colors"
-          >
-            GitHub ↗
-          </a>
-        </nav>
-      </header>
-
-      {/* Main Container */}
-      <main id="top" className="relative z-10 max-w-5xl mx-auto px-6 pt-16 pb-24 space-y-28">
-        {/* Hero Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-6">
-          <div className="lg:col-span-8 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs text-cyan-400">
-              <span>⚡ Founder @ Nexantix</span>
-              <span className="text-zinc-600">•</span>
-              <span>B.E. CSE Undergraduate</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.1]">
-              Architecting{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
-                Autonomous AI
-              </span>{' '}
-              & Minimalist Web Systems.
-            </h1>
-
-            <p className="text-zinc-400 text-base sm:text-lg max-w-2xl leading-relaxed">
-              Hi, I&apos;m <span className="text-zinc-100 font-medium">Dharshan</span> — a Computer
-              Science & Engineering student at PTR College of Engineering and Technology, Madurai.
-              I build local AI assistants, self-correcting agent workflows, and ultra-clean digital
-              products.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <a
-                href="#projects"
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-zinc-950 font-semibold text-sm hover:opacity-95 transition-all shadow-lg shadow-cyan-500/20"
-              >
-                Explore Projects
-              </a>
-              <a
-                href="https://github.com/dharshan555-code"
-                target="_blank"
-                rel="noreferrer"
-                className="px-6 py-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 hover:border-cyan-500/50 text-sm font-medium transition-all"
-              >
-                github.com/dharshan555-code
-              </a>
-            </div>
-          </div>
-
-          {/* 3D Tilt Profile Card */}
-          <div className="lg:col-span-4 flex justify-center">
-            <TiltCard className="w-64 sm:w-72 rounded-3xl p-4 bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/90 shadow-2xl">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800">
-                <img
-                  src={`${import.meta.env.BASE_URL}profile-color.jpeg`}
-                  alt="Dharshan"
-                  className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://avatars.githubusercontent.com/u/9919?v=4';
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-white">Dharshan</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Online
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center justify-between text-xs text-zinc-400 px-1">
-                <span>Madurai, TN</span>
-                <span className="text-cyan-400 font-mono">Class of 2029</span>
-              </div>
-            </TiltCard>
-          </div>
-        </section>
-
-        {/* Bento Grid: About & Technical Arsenal */}
-        <section id="about" className="space-y-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">01 / System Architecture & Skills</h2>
-            <span className="text-xs font-mono text-zinc-500 uppercase">Bento Overview</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {skillGroups.map((group) => (
-              <TiltCard
-                key={group.category}
-                className="p-6 rounded-2xl bg-zinc-900/50 backdrop-blur-md border border-zinc-800/80 hover:border-cyan-500/40 transition-colors"
-              >
-                <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-4">
-                  {group.category}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {group.items.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1.5 rounded-lg bg-zinc-950/90 border border-zinc-800 text-xs text-zinc-300"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </TiltCard>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Projects Section */}
-        <section id="projects" className="space-y-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">02 / Featured Works</h2>
-            <a
-              href="https://github.com/dharshan555-code?tab=repositories"
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs font-mono text-cyan-400 hover:underline"
-            >
-              View All Repos →
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project) => (
-              <TiltCard
-                key={project.title}
-                className="group p-6 rounded-2xl bg-zinc-900/50 backdrop-blur-md border border-zinc-800/80 hover:border-cyan-500/50 flex flex-col justify-between transition-all"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                      {project.tag}
-                    </span>
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-zinc-400 group-hover:text-cyan-400 transition-colors"
-                    >
-                      Source ↗
-                    </a>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-zinc-100 group-hover:text-cyan-300 transition-colors">
-                    {project.title}
+      <div className="mt-16 space-y-20">
+        {projects.map((project) => (
+          <Reveal key={project.name}>
+            <article className="group">
+              <div className="relative flex aspect-[16/8] items-center justify-center overflow-hidden rounded-[1.75rem] bg-[#f3f3f3]">
+                <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-black/[0.06]" />
+                <div className="relative text-center">
+                  <p className="text-xs uppercase tracking-[0.3em] text-black/30">
+                    Project {project.number}
+                  </p>
+                  <h3 className="mt-4 text-4xl font-semibold tracking-[-0.05em] transition-transform duration-500 group-hover:scale-[1.03] md:text-7xl">
+                    {project.name}
                   </h3>
-
-                  <p className="text-sm text-zinc-400 leading-relaxed">{project.description}</p>
                 </div>
-
-                <div className="flex flex-wrap gap-2 pt-6 mt-4 border-t border-zinc-800/60">
-                  {project.tech.map((t) => (
-                    <span key={t} className="text-[11px] font-mono text-zinc-400">
-                      #{t}
-                    </span>
-                  ))}
-                </div>
-              </TiltCard>
-            ))}
-          </div>
-        </section>
-
-        {/* Interactive JARVIS Command Terminal (Bonus Choice Addition) */}
-        <section id="terminal" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">03 / Interactive JARVIS Terminal</h2>
-            <span className="text-xs font-mono text-emerald-400">● LOCAL_SYS_READY</span>
-          </div>
-
-          <div className="rounded-2xl bg-zinc-950/90 border border-zinc-800 overflow-hidden shadow-2xl font-mono text-xs sm:text-sm">
-            <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-amber-500/80" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
               </div>
-              <span className="text-zinc-400 text-xs">dharshan@nexantix-core:~</span>
-              <span className="text-zinc-600 text-xs">bash</span>
-            </div>
 
-            <div className="p-5 space-y-2 max-h-60 overflow-y-auto text-zinc-300">
-              {terminalLogs.map((log, index) => (
-                <div
-                  key={index}
-                  className={log.startsWith('>') ? 'text-cyan-400 font-semibold' : 'text-zinc-300'}
-                >
-                  {log}
+              <div className="mt-7 grid gap-5 md:grid-cols-[1fr_auto] md:items-start">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-black/35">
+                    {project.type}
+                  </p>
+                  <p className="mt-3 max-w-2xl text-xl leading-8 text-black/60">
+                    {project.description}
+                  </p>
+                  <p className="mt-4 text-sm text-black/40">{project.tech}</p>
                 </div>
-              ))}
-            </div>
 
-            <form
-              onSubmit={handleCommand}
-              className="flex items-center border-t border-zinc-800/80 px-4 py-3 bg-zinc-900/40"
-            >
-              <span className="text-emerald-400 mr-2">$</span>
-              <input
-                type="text"
-                value={terminalInput}
-                onChange={(e) => setTerminalInput(e.target.value)}
-                placeholder="Type a command (help, whoami, skills, projects, nexantix, clear)..."
-                className="w-full bg-transparent text-zinc-100 focus:outline-none placeholder:text-zinc-600"
-              />
-            </form>
-          </div>
-        </section>
-
-        {/* Contact & Links Section */}
-        <section id="contact" className="pt-4">
-          <TiltCard className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-900/90 via-zinc-900/60 to-zinc-950 border border-zinc-800 text-center space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-bold">
-              Let&apos;s Build Something Extraordinary
-            </h2>
-            <p className="text-zinc-400 text-sm sm:text-base max-w-xl mx-auto">
-              Open to collaborating on AI agent architectures, open-source Python tools, and
-              minimalist full-stack web experiences.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 pt-2">
-              <a
-                href="https://github.com/dharshan555-code"
-                target="_blank"
-                rel="noreferrer"
-                className="px-5 py-2.5 rounded-xl bg-zinc-100 text-zinc-950 font-semibold text-xs sm:text-sm hover:bg-cyan-400 transition-colors"
-              >
-                GitHub (@dharshan555-code)
-              </a>
-              <a
-                href="https://www.linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className="px-5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-200 hover:border-cyan-400 text-xs sm:text-sm transition-colors"
-              >
-                LinkedIn
-              </a>
-              <a
-                href="mailto:dharshan@nexantix.com"
-                className="px-5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-200 hover:border-emerald-400 text-xs sm:text-sm transition-colors"
-              >
-                Email Me
-              </a>
-            </div>
-          </TiltCard>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-zinc-900 py-8 text-center text-xs text-zinc-500">
-        <p>© {new Date().getFullYear()} Dharshan • Powered by Nexantix & React 3D Canvas</p>
-      </footer>
-    </div>
+                <div className="flex gap-3">
+                  <a
+                    href="https://github.com/dharshan555-code"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2.5 text-sm font-medium hover:bg-black hover:text-white"
+                  >
+                    GitHub <Github size={15} />
+                  </a>
+                </div>
+              </div>
+            </article>
+          </Reveal>
+        ))}
+      </div>
+    </section>
   );
 }
 
-export default App;
+function Stack() {
+  const groups = [
+    ["Languages", "C · C++ · Python · JavaScript"],
+    ["Frontend", "HTML · CSS · React · Next.js · Tailwind CSS"],
+    ["Backend / Data", "Node.js · Supabase · Firebase"],
+    ["Tools", "Git · GitHub · Android Studio · VS Code"],
+  ];
+
+  return (
+    <section id="stack" className="border-y border-black/10 bg-[#fafafa]">
+      <div className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-32">
+        <Reveal>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
+            Technology
+          </p>
+          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+            Tools I work with.
+          </h2>
+        </Reveal>
+
+        <div className="mt-14 grid overflow-hidden rounded-3xl border border-black/10 bg-[#fafafa] md:grid-cols-2">
+          {groups.map(([name, value], index) => (
+            <Reveal key={name}>
+              <div
+                className={`min-h-[150px] bg-[#fafafa] p-7 md:p-9 ${
+                  index < 2 ? "border-b border-black/10" : ""
+                } ${index % 2 === 0 ? "md:border-r md:border-black/10" : ""}`}
+              >
+                <p className="text-xs uppercase tracking-[0.2em] text-black/40">{name}</p>
+                <p className="mt-5 max-w-md text-base font-medium leading-7 text-black/80 md:text-lg md:leading-8">{value}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Journey() {
+  const stages = [
+    ["01", "Learn", "Learning computer science and software development."],
+    ["02", "Build", "Turning ideas into working products."],
+    ["03", "Experiment", "Exploring AI, automation and new technologies."],
+    ["04", "Ship", "Turning experiments into usable products."],
+  ];
+
+  return (
+    <section id="journey" className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-32">
+      <Reveal>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
+          Journey
+        </p>
+        <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+          Learning by building.
+        </h2>
+      </Reveal>
+
+      <div className="mt-14 border-t border-black/10">
+        {stages.map(([num, title, description]) => (
+          <Reveal key={num}>
+            <div className="grid gap-4 border-b border-black/10 py-8 md:grid-cols-[80px_1fr_1fr] md:items-center">
+              <span className="text-sm text-black/35">{num}</span>
+              <h3 className="text-2xl font-semibold">{title}</h3>
+              <p className="text-black/50">{description}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Contact() {
+  return (
+    <section id="contact" className="px-6 py-24 md:px-12 md:py-32">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-black px-7 py-14 text-white md:px-14 md:py-20">
+        <div className="grid gap-14 lg:grid-cols-[1fr_.8fr]">
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.25em] text-white/45">Contact</p>
+            <h2 className="mt-5 max-w-3xl text-5xl font-semibold leading-[0.95] tracking-[-0.05em] md:text-7xl">
+              Have something worth building?
+            </h2>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-white/55">
+              Let's turn an idea into something useful.
+            </p>
+
+            <a
+              href="mailto:dharshan2008p@gmail.com"
+              className="mt-10 inline-flex items-center gap-2 border-b border-white/30 pb-2 text-lg hover:border-white"
+            >
+              dharshan2008p@gmail.com <ExternalLink size={16} />
+            </a>
+          </Reveal>
+
+          <Reveal>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const data = new FormData(form);
+                const name = String(data.get("name") || "");
+                const email = String(data.get("email") || "");
+                const message = String(data.get("message") || "");
+                const subject = encodeURIComponent(`Portfolio enquiry from ${name}`);
+                const body = encodeURIComponent(
+                  `Name: ${name}\nEmail: ${email}\n\n${message}`
+                );
+                window.location.href = `mailto:dharshan2008p@gmail.com?subject=${subject}&body=${body}`;
+              }}
+              className="space-y-7"
+            >
+              {[
+                ["name", "Name", "Your name"],
+                ["email", "Email", "you@example.com"],
+              ].map(([id, label, placeholder]) => (
+                <label key={id} className="block">
+                  <span className="text-sm text-white/55">{label}</span>
+                  <input
+                    required
+                    name={id}
+                    type={id === "email" ? "email" : "text"}
+                    placeholder={placeholder}
+                    className="mt-2 w-full border-b border-white/20 bg-transparent py-3 outline-none placeholder:text-white/25 focus:border-white"
+                  />
+                </label>
+              ))}
+
+              <label className="block">
+                <span className="text-sm text-white/55">Message</span>
+                <textarea
+                  required
+                  name="message"
+                  rows={4}
+                  placeholder="Tell me about your project..."
+                  className="mt-2 w-full resize-none border-b border-white/20 bg-transparent py-3 outline-none placeholder:text-white/25 focus:border-white"
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black hover:bg-white/90"
+              >
+                Send message <ArrowUpRight size={16} />
+              </button>
+            </form>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="mx-auto flex max-w-7xl flex-col gap-8 border-t border-black/10 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-12">
+      <div>
+        <p className="font-semibold">Dharshan P</p>
+        <p className="mt-1 text-sm text-black/45">
+          Built with curiosity. Designed with intention.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {socials.map(({ label, href, icon: Icon }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={label}
+            title={label}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black/65 transition-all hover:-translate-y-0.5 hover:bg-black hover:text-white"
+          >
+            <Icon size={18} strokeWidth={1.8} />
+          </a>
+        ))}
+        <a
+          href="mailto:dharshan2008p@gmail.com"
+          aria-label="Email"
+          title="Email"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black/65 transition-all hover:-translate-y-0.5 hover:bg-black hover:text-white"
+        >
+          <Mail size={18} strokeWidth={1.8} />
+        </a>
+      </div>
+
+      <p className="text-sm text-black/35">© 2026 Dharshan P</p>
+    </footer>
+  );
+}
+
+export default function App() {
+  return (
+    <div className="min-h-screen w-full overflow-x-hidden bg-white text-black">
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <WhatIBuild />
+        <Work />
+        <Stack />
+        <Journey />
+        <Contact />
+      </main>
+      <Footer />
+    </div>
+  );
+}
