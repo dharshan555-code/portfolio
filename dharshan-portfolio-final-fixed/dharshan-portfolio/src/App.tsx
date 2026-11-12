@@ -246,7 +246,7 @@ function About() {
 function WhatIBuild() {
   const items = [
     ["01", "Websites", "Modern responsive websites and digital experiences."],
-    ["02", "Web Applications", "Useful applications, dashboards and tools."],
+    ["02", "Applications", "Useful applications, dashboards and tools."],
     ["03", "AI Products", "AI assistants, automation and intelligent software."],
     ["04", "Product Development", "Turning ideas into functional digital products."],
   ];
