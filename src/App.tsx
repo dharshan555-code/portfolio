@@ -3,12 +3,12 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Github,
-  Instagram,
   Linkedin,
   Mail,
   Menu,
   X,
   ExternalLink,
+  GraduationCap,
 } from "lucide-react";
 
 const useReveal = () => {
@@ -48,7 +48,7 @@ function Reveal({
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${
+      className={`transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:transform-none ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       } ${className}`}
     >
@@ -58,11 +58,6 @@ function Reveal({
 }
 
 const socials = [
-  {
-    label: "Instagram",
-    href: "https://instagram.com/dharshanprabath",
-    icon: Instagram,
-  },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/dharshan-p-ba4734370/",
@@ -82,17 +77,18 @@ function Navbar() {
     ["About", "#about"],
     ["Stack", "#stack"],
     ["Journey", "#journey"],
+    ["Education", "#education"],
     ["Contact", "#contact"],
   ];
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 md:px-6">
-      <nav className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
+      <nav aria-label="Main navigation" className="mx-auto mt-4 flex w-full max-w-7xl items-center justify-between rounded-full border border-black/10 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
         <a href="#top" className="text-base font-semibold tracking-tight">
           Dharshan 
         </a>
         <div className="hidden items-center gap-7 md:flex">
-          {links.map(([label, href]) => (
+          {links.filter(([label]) => label !== "Contact").map(([label, href]) => (
             <a
               key={href}
               href={href}
@@ -102,9 +98,11 @@ function Navbar() {
             </a>
           ))}
         </div>
+        <a href="#contact" className="hidden rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-black/80 md:inline-flex">Contact <ArrowUpRight size={14} /></a>
 
         <button
-          aria-label="Toggle menu"
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className="rounded-full p-2 md:hidden"
         >
@@ -139,7 +137,7 @@ function Hero() {
         <Reveal>
           <div className="max-w-4xl">
             <p className="mb-6 text-xs font-semibold uppercase tracking-[0.28em] text-black/45">
-              Dharshan P · Developer
+              Dharshan P · Computer Science Student
             </p>
 
             <h1 className="max-w-4xl text-[clamp(3.3rem,8vw,7.8rem)] font-semibold leading-[0.92] tracking-[-0.055em]">
@@ -147,8 +145,7 @@ function Hero() {
             </h1>
 
             <p className="mt-8 max-w-2xl text-lg leading-8 text-black/55 md:text-xl">
-              Developer focused on software, AI, web experiences and digital
-              products — turning ideas into useful things.
+              B.E. Computer Science student exploring Artificial Intelligence and Machine Learning, and building thoughtful software and web experiences.
             </p>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -168,7 +165,7 @@ function Hero() {
 
             <div className="mt-10 flex items-center gap-3 text-sm text-black/50">
               <span className="h-2 w-2 rounded-full bg-black" />
-              Available for selected projects
+              Learning continuously · Building consistently
             </div>
           </div>
         </Reveal>
@@ -183,7 +180,7 @@ function Hero() {
               />
             </div>
             <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.2em] text-black/40">
-              <span>Developer</span>
+              <span>CS Student · Developer</span>
               <span>Madurai, India</span>
             </div>
           </div>
@@ -209,12 +206,10 @@ function About() {
 
           <Reveal className="space-y-6">
             <p className="text-xl leading-9 text-black/65 md:text-2xl">
-              I'm Dharshan, a developer interested in software, AI, product
-              design and building useful digital experiences from the ground up.
+              I'm Dharshan, a B.E. Computer Science student with a growing interest in Artificial Intelligence and Machine Learning. I enjoy understanding how technology works and turning what I learn into practical projects.
             </p>
             <p className="text-lg leading-8 text-black/50">
-              I like simple interfaces, clean code and ambitious ideas that can
-              become real products.
+              I value clear interfaces, maintainable code and learning by building. My current focus is strengthening my programming foundations while exploring AI/ML.
             </p>
 
             <div className="grid gap-6 border-t border-black/10 pt-8 sm:grid-cols-2">
@@ -224,7 +219,7 @@ function About() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-black/35">Focus</p>
-                <p className="mt-2 font-medium">Software · AI · Web · Products</p>
+                <p className="mt-2 font-medium">AI/ML · Software Development · Web</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-black/35">Location</p>
@@ -232,7 +227,7 @@ function About() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-black/35">Interests</p>
-                <p className="mt-2 font-medium">Technology · Design · Building</p>
+                <p className="mt-2 font-medium">AI · Problem Solving · Product Design</p>
               </div>
             </div>
           </Reveal>
@@ -246,8 +241,8 @@ function WhatIBuild() {
   const items = [
     ["01", "Websites", "Modern responsive websites and digital experiences."],
     ["02", "Applications", "Useful applications, dashboards and tools."],
-    ["03", "AI Products", "AI assistants, automation and intelligent software."],
-    ["04", "Product Development", "Turning ideas into functional digital products."],
+    ["03", "AI & Machine Learning", "Building foundations in AI/ML and exploring practical applications through experiments."],
+    ["04", "Problem Solving", "Breaking down ideas and learning to turn them into reliable software."],
   ];
 
   return (
@@ -259,6 +254,7 @@ function WhatIBuild() {
         <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
           What I build.
         </h2>
+        <p className="mt-5 max-w-2xl text-lg leading-8 text-black/50">I enjoy learning the fundamentals, experimenting with new tools and applying them to useful software.</p>
       </Reveal>
 
       <div className="mt-14 divide-y divide-black/10 border-y border-black/10">
@@ -282,15 +278,15 @@ function Work() {
       number: "01",
       name: "HabitIQ",
       type: "Product · Productivity",
-      description: "A minimalist habit and productivity experience.",
-      tech: "React · Tailwind · Capacitor",
+      description: "A minimalist habit-tracking concept focused on consistency, clear progress and a distraction-free experience.",
+      tech: "React · Tailwind CSS · Capacitor",
     },
     {
       number: "02",
       name: "JARVIS",
       type: "AI · Automation",
       description:
-        "An AI assistant exploring computer control, automation, agents and intelligent workflows.",
+        "An experimental personal assistant exploring AI integration, computer interaction, automation and tool-based workflows.",
       tech: "Python · AI · Automation",
     },
     {
@@ -298,7 +294,7 @@ function Work() {
       name: "Py-Sec-Lint",
       type: "Developer Tool · Security",
       description:
-        "A security-focused concept for auditing Python dependencies.",
+        "A developer-tool concept exploring how Python project dependencies can be checked for potential security issues.",
       tech: "Python · Security · AI",
     },
   ];
@@ -362,10 +358,12 @@ function Work() {
 
 function Stack() {
   const groups = [
-    ["Languages", "C · C++ · Python · JavaScript"],
+    ["Programming", "C · C++ · Python · JavaScript"],
+    ["AI / ML", "Currently learning · AI and Machine Learning foundations"],
     ["Frontend", "HTML · CSS · React · Next.js · Tailwind CSS"],
-    ["Backend / Data", "Node.js · Supabase · Firebase"],
-    ["Tools", "Git · GitHub · Android Studio · VS Code"],
+    ["Backend & Data", "Node.js · Supabase · Firebase"],
+    ["Developer Tools", "Git · GitHub · VS Code · Android Studio"],
+    ["Exploring", "Model fundamentals · Data handling · AI applications"],
   ];
 
   return (
@@ -373,20 +371,21 @@ function Stack() {
       <div className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-32">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-black/40">
-            Technology
+            Skills & learning
           </p>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
-            Tools I work with.
+            My current toolkit.
           </h2>
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-black/50">A snapshot of the technologies I use, study and explore. I keep this list honest and update it as my skills grow.</p>
         </Reveal>
 
         <div className="mt-14 grid overflow-hidden rounded-3xl border border-black/10 bg-[#fafafa] md:grid-cols-2">
           {groups.map(([name, value], index) => (
             <Reveal key={name}>
               <div
-                className={`min-h-[150px] bg-[#fafafa] p-7 md:p-9 ${
-                  index < 2 ? "border-b border-black/10" : ""
-                } ${index % 2 === 0 ? "md:border-r md:border-black/10" : ""}`}
+                className={`min-h-[150px] bg-[#fafafa] p-7 md:p-9 border-b border-black/10 ${
+                  index % 2 === 0 ? "md:border-r md:border-black/10" : ""
+                }`}
               >
                 <p className="text-xs uppercase tracking-[0.2em] text-black/40">{name}</p>
                 <p className="mt-5 max-w-md text-base font-medium leading-7 text-black/80 md:text-lg md:leading-8">{value}</p>
@@ -403,7 +402,7 @@ function Journey() {
   const stages = [
     ["01", "Learn", "Learning computer science and software development."],
     ["02", "Build", "Turning ideas into working products."],
-    ["03", "Experiment", "Exploring AI, automation and new technologies."],
+    ["03", "Explore AI/ML", "Strengthening the fundamentals of Artificial Intelligence and Machine Learning through study and small experiments."],
     ["04", "Ship", "Turning experiments into usable products."],
   ];
 
@@ -433,6 +432,56 @@ function Journey() {
   );
 }
 
+
+function Education() {
+  return (
+    <section id="education" className="border-y border-black/10 bg-[#fafafa]">
+      <div className="mx-auto max-w-7xl px-6 py-24 md:px-12 md:py-28">
+        <Reveal>
+          <div className="flex items-center gap-3 text-black/40">
+            <GraduationCap size={18} />
+            <p className="text-xs font-semibold uppercase tracking-[0.25em]">Education</p>
+          </div>
+          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+            Building my foundations.
+          </h2>
+        </Reveal>
+        <Reveal className="mt-12">
+          <div className="rounded-[1.75rem] border border-black/10 bg-white p-7 md:p-10">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-black/40">Undergraduate</p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">B.E. Computer Science and Engineering</h3>
+                <p className="mt-3 max-w-2xl leading-7 text-black/55">
+                  Developing a strong foundation in computer science, programming and software development while independently exploring AI and Machine Learning.
+                </p>
+              </div>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 px-4 py-2 text-xs text-black/55">
+                <span className="h-1.5 w-1.5 rounded-full bg-black" />
+                Currently studying
+              </span>
+            </div>
+            <div className="mt-8 grid gap-4 border-t border-black/10 pt-7 sm:grid-cols-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-black/35">Core focus</p>
+                <p className="mt-2 font-medium">Computer Science</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-black/35">Exploring</p>
+                <p className="mt-2 font-medium">Artificial Intelligence</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-black/35">Next focus</p>
+                <p className="mt-2 font-medium">Machine Learning</p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 function Contact() {
   return (
     <section id="contact" className="px-6 py-24 md:px-12 md:py-32">
@@ -444,7 +493,7 @@ function Contact() {
               Have something worth building?
             </h2>
             <p className="mt-7 max-w-xl text-lg leading-8 text-white/55">
-              Let's turn an idea into something useful.
+              Have a question, an idea or an opportunity to collaborate? I'd be glad to hear from you.
             </p>
 
             <a
@@ -519,7 +568,7 @@ function Footer() {
       <div>
         <p className="font-semibold">Dharshan P</p>
         <p className="mt-1 text-sm text-black/45">
-          Built with curiosity. Designed with intention.
+          Learning, experimenting and building with intention.
         </p>
       </div>
 
@@ -529,7 +578,7 @@ function Footer() {
             key={label}
             href={href}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             aria-label={label}
             title={label}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black/65 transition-all hover:-translate-y-0.5 hover:bg-black hover:text-white"
@@ -547,7 +596,7 @@ function Footer() {
         </a>
       </div>
 
-      <p className="text-sm text-black/35">© 2026 Dharshan P</p>
+      <div className="flex items-center gap-5"><p className="text-sm text-black/35">© {new Date().getFullYear()} Dharshan P</p><a href="#top" className="text-sm text-black/55 transition hover:text-black">Back to top ↑</a></div>
     </footer>
   );
 }
@@ -563,6 +612,7 @@ export default function App() {
         <Work />
         <Stack />
         <Journey />
+        <Education />
         <Contact />
       </main>
       <Footer />
