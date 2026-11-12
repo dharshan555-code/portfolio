@@ -180,7 +180,7 @@ function Hero() {
               />
             </div>
             <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.2em] text-black/40">
-              <span>CS Student · Developer</span>
+              <span>Student </span>
               <span>Madurai, India</span>
             </div>
           </div>
